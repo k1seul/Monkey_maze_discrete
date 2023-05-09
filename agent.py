@@ -14,7 +14,7 @@ class Agent():
     """
     def __init__(self, state_size, action_size, hidden_size, learning_rate, 
                  memory_size, batch_size, gamma,
-                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 3):
+                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 1):
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("currently running the calculation on " + str(self.device))

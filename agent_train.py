@@ -73,7 +73,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     reward_num = 9
 
     if agent_memory_based:
-        agent.init_memory(agent_memory_size=3) 
+        agent.init_memory(agent_memory_size=1) 
 
     for reward_idx in range(0, reward_num):
 

@@ -16,7 +16,7 @@ main policy network is simple linear DQN and model_network does only one step pr
 # composed of 5 linear layer with selected hidden_size 
 # forward method used relu as activation function
 
-Network_names = ["QNetwork", "LSTM_Q", "Model_Network_valila", "Model_Network_cross"]
+Network_names = ["QNetwork", "ShallowQnetwork" ,"LSTM_Q", "Model_Network_valila", "Model_Network_cross"]
 
 class QNetwork(nn.Module):
     ## input dimension of each state, action, hidden. if the Q_Network is passed though the output of model, model_output_n need to be determined 
@@ -38,6 +38,28 @@ class QNetwork(nn.Module):
         x = F.relu(self.fc3(x))
         x = F.relu(self.fc4(x))
         x = self.fc5(x)
+     
+        
+        
+        return x
+    
+
+class ShallowQnetwork(nn.Module): 
+    ## input dimension of each state, action, hidden. if the Q_Network is passed though the output of model, model_output_n need to be determined 
+    ## Networksize is (state_n + model_output_n)*(hidden_size)^layers=5*action_size 
+    def __init__(self, state_size, action_size, hidden_size):
+        super(QNetwork, self).__init__()
+        self.fc1 = nn.Linear(state_size,  hidden_size)
+        self.fc2 = nn.Linear(hidden_size, hidden_size)
+        self.fc3 = nn.Linear(hidden_size, action_size)
+    
+    ## all foward method has relu activation function 
+    def forward(self, x):
+       
+        
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
      
         
         
