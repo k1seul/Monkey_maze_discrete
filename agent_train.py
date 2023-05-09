@@ -6,14 +6,16 @@ from monkeyqmazediscrete_v2 import MonkeyQmazeDiscreteV2
 from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 from monkeyqmazediscrete_v0_cheat import MonkeyQmazeDiscreteV0Cheat 
-from agent_model_based import Agent
+from agent import Agent
 from torch.utils.tensorboard import SummaryWriter 
 import pickle 
 from save_data import Save_data 
 from shannon_info import shannon_info
 import numpy as np 
 
-def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, game_version = 1 , TD_switch = False, model_based=False):
+def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, 
+    game_version = 1 , TD_switch = False, model_based=False,
+    agent_memory_based=False):
     if TD_sample:
         uniform_sample = False
     game_name = 'Monkey_Qmaze' + str(game_version)
@@ -26,7 +28,9 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, game_
     port = 6111 ## random.randint(6000, 7000)
     subprocess.Popen(f"tensorboard --logdir={log_dir} --port={port} --reload_multifile=true", shell=True)
 
-    log_dir = log_dir + '/' + game_name + '_' + "Uniformed_sample_" + str(uniform_sample) +'_TD_switch'+ str(TD_switch)  + '_' + 'model_based_' + str(model_based)
+    log_dir = (log_dir + '/' + game_name + '_' + "Uniformed_sample_" + 
+        str(uniform_sample) +'_TD_switch'+ str(TD_switch)  + 
+        '_' + 'model_based_' + str(model_based)) + '_' + str(run_time)
 
     if game_version == 1:
         env = MonkeyQmazeDiscrete()
@@ -55,7 +59,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, game_
                   memory_size= memory_size,
                   batch_size= batch_size,
                   gamma= gamma,
-                  model_based=model_based)
+                  model_based=model_based,
+                  agent_memory_based=True)
     
     agent.sample_var_n = sample_var_n 
     
@@ -67,10 +72,17 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, game_
     num_episode = 1000 
     reward_num = 9
 
+    if agent_memory_based:
+        agent.init_memory(agent_memory_size=3) 
+
     for reward_idx in range(0, reward_num):
 
         for i_episode in range(reward_idx*num_episode, (reward_idx + 1)*num_episode):
             state, info = env.reset(reward_idx=reward_idx)
+
+            if agent_memory_based:
+                agent.small_reward_memory_reset()
+            
             done = False
             truncated = False 
             total_length = 1
@@ -85,6 +97,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, game_
 
                 total_reward += reward 
                 total_length += 1
+
+
 
                 agent.remember(state, action, reward, next_state, done)
 

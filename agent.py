@@ -14,7 +14,7 @@ class Agent():
     """
     def __init__(self, state_size, action_size, hidden_size, learning_rate, 
                  memory_size, batch_size, gamma,
-                 policy_network= 'Q_network', model_based= False):
+                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 3):
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("currently running the calculation on " + str(self.device))
@@ -27,6 +27,9 @@ class Agent():
         self.hidden_size = hidden_size
         self.action_size = action_size
         self.learning_rate = learning_rate
+
+        if agent_memory_based:
+            self.state_size += agent_memory_size
 
 
         ## model of the env model predicts S(t+1), r(t+1) = model(s,a) 
@@ -51,10 +54,10 @@ class Agent():
 
         if policy_network == 'Q_network':
             print("policy network is currently q network")
-            self.q_network = QNetwork(state_size, action_size, hidden_size).to(self.device)
+            self.q_network = QNetwork(self.state_size, action_size, hidden_size).to(self.device)
         elif policy_network == 'LSTM_Q':
             print("policy_network is currently LSTM network")
-            self.q_network = LSTM_Q(state_size, action_size, hidden_size).to(self.device)
+            self.q_network = LSTM_Q(self.state_size, action_size, hidden_size).to(self.device)
         else:
             raise Exception('Error!!!! network not defined')
         
@@ -71,14 +74,49 @@ class Agent():
             ## supervised learning for the model when model_train_n reaches simul_start_n model prediction starts 
             self.model_train_n = 0 
             self.model_simul_start_n = 5000
+        
+        if agent_memory_based:
+            self.agent_memory_based = agent_memory_based
+            self.agent_memory_size = agent_memory_size 
+            self.init_memory(agent_memory_size)
 
-    def init_memory(self, memory_size):
-        self.agent_memory = np.zeros(memory_size)
+    def init_memory(self, agent_memory_size):
+        self.agent_memory = np.zeros(agent_memory_size)
+        self.small_reward_memory_reset() 
+    
+    def small_reward_memory_reset(self):
+        self.agent_small_reward_memory = 0 
+        self.agent_memory[0] = self.agent_small_reward_memory
+
+    def record_small_reward_memory(self, small_reward):
+        ## decay of small reward memory first 
+        self.agent_small_reward_memory = 0.9*self.agent_small_reward_memory
+        self.agent_small_reward_memory = round(self.agent_small_reward_memory, 2)
+
+        if small_reward == 1: 
+            self.agent_small_reward_memory += small_reward
+            
+
+        self.agent_memory[0] = self.agent_small_reward_memory
+    
+
+        
+
+    def state_memory_wapper(self, state):
+        """For newly defined state with memory attachment  
+        """
+        memory_state = np.append(state, self.agent_memory)
+
+        return memory_state
+             
 
     def decay_memory(self):
         pass
 
     def act(self, state, max_q_action= True): 
+
+        state = self.state_memory_wapper(state) 
+
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size) 
         else:
@@ -94,6 +132,11 @@ class Agent():
             
 
     def remember(self, state, action, reward, next_state, done):
+        if self.agent_memory_based:
+            state = self.state_memory_wapper(state)
+            self.record_small_reward_memory(reward)
+            next_state = self.state_memory_wapper(next_state)
+        
         self.experience_memory.append((state, action, reward, next_state, done))
         ## sample_var_n is used to calculate 95% percentile of variance 
         ## if batch size is 1000 and sample_var_n = 100, 100 resent sample will be selected with 95 % confidance 
