@@ -13,7 +13,7 @@ def evaluate_fixed_agent(episode_num, agent=Agent, writer=SummaryWriter, goal_lo
 
     state, info = env.reset(reward_idx=goal_location_idx) 
 
-    test_episode = 100
+    test_episode = 20
 
     reward_vector = np.zeros(test_episode)
     length_vector = np.zeros(test_episode)

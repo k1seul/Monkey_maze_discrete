@@ -6,7 +6,7 @@ from monkeyqmazediscrete_v2 import MonkeyQmazeDiscreteV2
 from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 from monkeyqmazediscrete_v0_cheat import MonkeyQmazeDiscreteV0Cheat 
-from agent_goal_memory import Agent
+from agent import Agent
 from torch.utils.tensorboard import SummaryWriter 
 import pickle 
 from save_data import Save_data 
@@ -46,7 +46,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     state_size = env.state_n 
     action_size = env.action_n
-    simulation = False 
+    simulation = True
 
     hidden_size = 256 
     learning_rate = 0.001 
@@ -75,8 +75,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     reward_num = 9
 
     if agent_memory_based:
-        agent.init_memory(agent_memory_size=3) 
-        agent.init_goal_memory_dict() 
+        agent.init_memory(agent_memory_size=1) 
+        ## agent.init_goal_memory_dict() 
         
 
     for reward_idx in range(0, reward_num):
@@ -106,8 +106,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 agent.remember(state, action, reward, next_state, done)
                 
-                if agent.agent_memory_based & (done or truncated):
-                    agent.record_goal_memory(next_state, reward)
+                #if agent.agent_memory_based & (done or truncated):
+                #   agent.record_goal_memory(next_state, reward)
 
 
                 state = next_state
@@ -132,7 +132,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
             shannon_value = shannon_info(state_trajectories, action_trajectories, env.action_n)
 
-            agent.goal_memory2dict()
+            # agent.goal_memory2dict()
         
 
 
