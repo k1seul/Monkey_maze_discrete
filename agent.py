@@ -105,7 +105,10 @@ class Agent():
     def state_memory_wapper(self, state):
         """For newly defined state with memory attachment  
         """
-        memory_state = np.append(state, self.agent_memory)
+        if self.agent_memory_based:
+            memory_state = np.append(state, self.agent_memory)
+        else: 
+            return state
 
         return memory_state
              

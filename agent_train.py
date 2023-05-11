@@ -12,6 +12,7 @@ import pickle
 from save_data import Save_data 
 from shannon_info import shannon_info
 import numpy as np 
+from evaluate_fixed_agent import evaluate_fixed_agent
 
 def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, 
     game_version = 1 , TD_switch = False, model_based=False,
@@ -25,7 +26,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
                                          "Uniformed_sample_" + str(uniform_sample) +'_'+ 'TD_switch_'+ str(TD_switch) + 
                                          '_model_based_' + str(model_based) + '/' + run_time ))
     os.makedirs(data_dir)
-    port = 6111 ## random.randint(6000, 7000)
+    port = 6983 ## random.randint(6000, 7000)
     subprocess.Popen(f"tensorboard --logdir={log_dir} --port={port} --reload_multifile=true", shell=True)
 
     log_dir = (log_dir + '/' + game_name + '_' + "Uniformed_sample_" + 
@@ -131,6 +132,11 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
             writer.add_scalar("reward_rate", total_reward/total_length, i_episode)
             writer.add_scalar("epsilion", agent.epsilon, i_episode)
             writer.add_scalar("shannon_value:", shannon_value, i_episode)
+
+
+            ## simulate agent in fixed network parameter and record mean length and reward of 100 trials 
+            evaluate_fixed_agent(i_episode, agent=agent, writer=writer, goal_location_idx=reward_idx, game_ver=game_version)
+
             if model_based:
                 writer.add_scalar("model_loss:", agent.model_loss, i_episode)
 
