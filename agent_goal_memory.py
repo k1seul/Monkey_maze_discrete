@@ -35,9 +35,9 @@ class Agent():
         ## model of the env model predicts S(t+1), r(t+1) = model(s,a) 
         self.model_based = model_based
         if model_based:
-            self.model_network_input_n = state_size + 1
+            self.model_network_input_n = state_size + 2 
             self.model_hidden_size = hidden_size
-            self.model_output_size = state_size + 1 
+            self.model_output_size = state_size + 2
             self.model_max_simulation_n = 100 
 
         ## memory and batch setup for batch learning 
@@ -82,7 +82,7 @@ class Agent():
 
     def init_memory(self, agent_memory_size):
         self.agent_memory = np.zeros(agent_memory_size)
-        self.small_reward_memory_reset() 
+        ## self.small_reward_memory_reset() 
         self.init_goal_memory_dict() 
 
     def init_goal_memory_dict(self):
@@ -159,6 +159,7 @@ class Agent():
     def act(self, state, max_q_action= True): 
 
         state = self.state_memory_wapper(state) 
+        print(state) 
 
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size) 
@@ -177,7 +178,7 @@ class Agent():
     def remember(self, state, action, reward, next_state, done):
         if self.agent_memory_based:
             state = self.state_memory_wapper(state)
-            self.record_small_reward_memory(reward)
+            ## self.record_small_reward_memory(reward)
             next_state = self.state_memory_wapper(next_state)
         
         self.experience_memory.append((state, action, reward, next_state, done))
