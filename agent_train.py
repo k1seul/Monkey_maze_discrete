@@ -6,7 +6,7 @@ from monkeyqmazediscrete_v2 import MonkeyQmazeDiscreteV2
 from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 from monkeyqmazediscrete_v0_cheat import MonkeyQmazeDiscreteV0Cheat 
-from agent import Agent
+from agent_goal_memory import Agent
 from torch.utils.tensorboard import SummaryWriter 
 import pickle 
 from save_data import Save_data 
@@ -23,15 +23,14 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     run_time = time.strftime('%m_%d_%H_%M_%S', time.localtime(time.time()))
     log_dir = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop/tensorboard_Data')
     data_dir = os.path.join(os.path.join(os.path.expanduser('~'), 'Desktop/model_Data' + game_name + '/' + 
-                                         'TD_switch_'+ str(TD_switch) + 
-                                         "_agent_memory_based" + str(agent_memory_based) + 
+                                         "Uniformed_sample_" + str(uniform_sample) +'_'+ 'TD_switch_'+ str(TD_switch) + 
                                          '_model_based_' + str(model_based) + '/' + run_time ))
     os.makedirs(data_dir)
-    port = 6231 ## random.randint(6000, 7000)
+    port = 6983 ## random.randint(6000, 7000)
     subprocess.Popen(f"tensorboard --logdir={log_dir} --port={port} --reload_multifile=true", shell=True)
 
-    log_dir = (log_dir + '/' + game_name + "_agent_memory_based" + str(agent_memory_based) + 
-        '_TD_switch'+ str(TD_switch)  + 
+    log_dir = (log_dir + '/' + game_name + '_' + "Uniformed_sample_" + 
+        str(uniform_sample) +'_TD_switch'+ str(TD_switch)  + 
         '_' + 'model_based_' + str(model_based)) + '_' + str(run_time)
 
     if game_version == 1:
@@ -47,14 +46,13 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     state_size = env.state_n 
     action_size = env.action_n
-    simulation = True
+    simulation = False
 
-    hidden_size = 1024
+    hidden_size = 1024 
     learning_rate = 0.001 
-    memory_size = 20000 
+    memory_size = 10000 
     batch_size = 64
     gamma = 0.99 
-    agent_memory_size = 1 
 
     agent = Agent(state_size= state_size,
                   action_size= action_size,
@@ -77,9 +75,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     reward_num = 9
 
     if agent_memory_based:
-        agent.init_memory(agent_memory_size=agent_memory_size)
-        if agent_memory_size == 3:  
-            agent.init_goal_memory_dict() 
+        agent.init_memory(agent_memory_size=2) 
+        agent.init_goal_memory_dict() 
         
 
     for reward_idx in range(0, reward_num):
@@ -87,8 +84,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
         for i_episode in range(reward_idx*num_episode, (reward_idx + 1)*num_episode):
             state, info = env.reset(reward_idx=reward_idx)
 
-            if agent_memory_based:
-                agent.small_reward_memory_reset()
+        
             
             done = False
             truncated = False 
@@ -109,7 +105,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 agent.remember(state, action, reward, next_state, done)
                 
-                if agent.agent_memory_based and agent_memory_size == 3 and (done or truncated):
+                if agent.agent_memory_based & (done or truncated):
                    agent.record_goal_memory(next_state, reward)
 
 
@@ -134,8 +130,9 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
             
 
             shannon_value = shannon_info(state_trajectories, action_trajectories, env.action_n)
+            
+            if agent_memory_based:
 
-            if agent_memory_size == 3: 
                 agent.goal_memory2dict()
         
 

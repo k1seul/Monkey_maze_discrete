@@ -14,7 +14,7 @@ class Agent():
     """
     def __init__(self, state_size, action_size, hidden_size, learning_rate, 
                  memory_size, batch_size, gamma,
-                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 3):
+                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 2):
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("currently running the calculation on " + str(self.device))
@@ -92,7 +92,7 @@ class Agent():
 
     def record_goal_memory(self, next_state, reward):
         if reward > 6: 
-            self.goal_memory_deque.append(next_state)
+            self.goal_memory_deque.append(next_state[0:2])
         else:
             self.goal_memory_deque.append([0,0])
 
@@ -117,7 +117,7 @@ class Agent():
         guss_goal = list(self.goal_memory_dict.keys())[random_goal_idx]
         
         self.guess_goal = np.array(guss_goal)
-        self.agent_memory[:2] = self.guess_goal
+        self.agent_memory = self.guess_goal
         print(self.agent_memory)
         
         
@@ -159,7 +159,6 @@ class Agent():
     def act(self, state, max_q_action= True): 
 
         state = self.state_memory_wapper(state) 
-        print(state) 
 
         if np.random.rand() <= self.epsilon:
             return np.random.randint(self.action_size) 
