@@ -1,9 +1,18 @@
-import gymnasium as gym 
 from agent import Agent 
+from agent import Agent 
+from torch.utils.tensorboard import SummaryWriter
+from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
+from agent import Agent
 from torch.utils.tensorboard import SummaryWriter
 from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 import numpy as np 
+
+def check_farthest_reward(reward_idx): 
+    if reward_idx == 0 or 1 or 2 or 4:
+        return 7
+    else:
+        return 0 
 
 def evaluate_fixed_agent(episode_num, agent=Agent, writer=SummaryWriter, goal_location_idx = 0, game_ver = 0):
     if game_ver == 0:
@@ -11,7 +20,9 @@ def evaluate_fixed_agent(episode_num, agent=Agent, writer=SummaryWriter, goal_lo
     elif game_ver == 3:
         env = MonkeyQmazeDiscreteV3()
 
-    state, info = env.reset(reward_idx=goal_location_idx) 
+    far_start = check_farthest_reward(goal_location_idx)
+
+    state, info = env.reset(reward_idx=goal_location_idx, start_idx=far_start) 
 
     test_episode = 20
 
@@ -20,7 +31,7 @@ def evaluate_fixed_agent(episode_num, agent=Agent, writer=SummaryWriter, goal_lo
 
     for i_episode in range(test_episode):
 
-      state, info = env.reset(reward_idx=goal_location_idx) 
+      state, info = env.reset(reward_idx=goal_location_idx, start_idx=far_start) 
         
       if agent.agent_memory_based:
           agent.small_reward_memory_reset() 
@@ -48,4 +59,5 @@ def evaluate_fixed_agent(episode_num, agent=Agent, writer=SummaryWriter, goal_lo
         
     writer.add_scalar("simulated agent reward", np.mean(reward_vector), episode_num)
     writer.add_scalar("simulated agent length", np.mean(length_vector), episode_num)
-    
+
+
