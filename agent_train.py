@@ -23,14 +23,15 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     run_time = time.strftime('%m_%d_%H_%M_%S', time.localtime(time.time()))
     log_dir = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop/tensorboard_Data')
     data_dir = os.path.join(os.path.join(os.path.expanduser('~'), 'Desktop/model_Data' + game_name + '/' + 
-                                         "Uniformed_sample_" + str(uniform_sample) +'_'+ 'TD_switch_'+ str(TD_switch) + 
+                                         'TD_switch_'+ str(TD_switch) + 
+                                         "_agent_memory_based" + str(agent_memory_based) + 
                                          '_model_based_' + str(model_based) + '/' + run_time ))
     os.makedirs(data_dir)
-    port = 6983 ## random.randint(6000, 7000)
+    port = 6231 ## random.randint(6000, 7000)
     subprocess.Popen(f"tensorboard --logdir={log_dir} --port={port} --reload_multifile=true", shell=True)
 
-    log_dir = (log_dir + '/' + game_name + '_' + "Uniformed_sample_" + 
-        str(uniform_sample) +'_TD_switch'+ str(TD_switch)  + 
+    log_dir = (log_dir + '/' + game_name + "_agent_memory_based" + str(agent_memory_based) + 
+        '_TD_switch'+ str(TD_switch)  + 
         '_' + 'model_based_' + str(model_based)) + '_' + str(run_time)
 
     if game_version == 1:
@@ -53,6 +54,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     memory_size = 10000 
     batch_size = 64
     gamma = 0.99 
+    agent_memory_size = 1 
 
     agent = Agent(state_size= state_size,
                   action_size= action_size,
@@ -75,8 +77,9 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     reward_num = 9
 
     if agent_memory_based:
-        agent.init_memory(agent_memory_size=1) 
-        ## agent.init_goal_memory_dict() 
+        agent.init_memory(agent_memory_size=agent_memory_size)
+        if agent_memory_size == 3:  
+            agent.init_goal_memory_dict() 
         
 
     for reward_idx in range(0, reward_num):
@@ -106,8 +109,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 agent.remember(state, action, reward, next_state, done)
                 
-                #if agent.agent_memory_based & (done or truncated):
-                #   agent.record_goal_memory(next_state, reward)
+                if agent.agent_memory_based & agent_memory_size == 3 & (done or truncated):
+                   agent.record_goal_memory(next_state, reward)
 
 
                 state = next_state
@@ -132,7 +135,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
             shannon_value = shannon_info(state_trajectories, action_trajectories, env.action_n)
 
-            # agent.goal_memory2dict()
+            if agent_memory_size == 3: 
+                agent.goal_memory2dict()
         
 
 
