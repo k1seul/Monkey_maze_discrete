@@ -49,9 +49,9 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     action_size = env.action_n
     simulation = True
 
-    hidden_size = 256 
+    hidden_size = 1024
     learning_rate = 0.001 
-    memory_size = 10000 
+    memory_size = 20000 
     batch_size = 64
     gamma = 0.99 
     agent_memory_size = 1 
@@ -109,7 +109,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 agent.remember(state, action, reward, next_state, done)
                 
-                if agent.agent_memory_based & agent_memory_size == 3 & (done or truncated):
+                if agent.agent_memory_based and agent_memory_size == 3 and (done or truncated):
                    agent.record_goal_memory(next_state, reward)
 
 
