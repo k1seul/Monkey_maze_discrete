@@ -88,7 +88,7 @@ class ModelBasedMap(gym.Env):
         start_idx = self.np_random.integers(0,self.size**2)
 
         while start_idx == reward_idx:
-            self.np_random.integers(0,self.size**2)
+            start_idx = self.np_random.integers(0,self.size**2)
         
 
         self.trial_goal = self.road_map[reward_idx]

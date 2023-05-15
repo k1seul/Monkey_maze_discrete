@@ -6,6 +6,7 @@ from collections import deque
 import random 
 import numpy as np 
 import scipy.stats as stats
+from model_solver_agent import ModelSolver
 
 
 class Agent():
@@ -14,7 +15,7 @@ class Agent():
     """
     def __init__(self, state_size, action_size, hidden_size, learning_rate, 
                  memory_size, batch_size, gamma,
-                 policy_network= 'Q_network', model_based= False):
+                 policy_network= 'Q_network', model_based= False, agent_memory_based=False):
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("currently running the calculation on " + str(self.device))
@@ -80,6 +81,7 @@ class Agent():
             ## supervised learning for the model when model_train_n reaches simul_start_n model prediction starts 
             self.model_train_n = 0 
             self.model_simul_start_n = 10000
+            self.model_solver = ModelSolver() 
 
     def init_memory(self, memory_size):
         self.agent_memory = np.zeros(memory_size)
@@ -220,10 +222,7 @@ class Agent():
                 if simul_n >= self.model_max_simulation_n:
                     done = True 
 
-                if np.random.rand() < self.model_epsilon:
-                    action = np.random.randint(self.action_size)
-                else:
-                    action = self.act(state)
+                action = self.model_solver(state)
 
                 action = np.array([action])
                 

@@ -27,6 +27,7 @@ class Agent():
         self.hidden_size = hidden_size
         self.action_size = action_size
         self.learning_rate = learning_rate
+        self.agent_memory_based = agent_memory_based
 
         if agent_memory_based:
             self.state_size += agent_memory_size

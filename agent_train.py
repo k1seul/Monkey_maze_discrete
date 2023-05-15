@@ -6,7 +6,7 @@ from monkeyqmazediscrete_v2 import MonkeyQmazeDiscreteV2
 from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 from monkeyqmazediscrete_v0_cheat import MonkeyQmazeDiscreteV0Cheat 
-from agent_goal_memory import Agent
+from agent_model_memory import Agent
 from torch.utils.tensorboard import SummaryWriter 
 import pickle 
 from save_data import Save_data 
@@ -65,13 +65,14 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
                   agent_memory_based=True)
     
     agent.sample_var_n = sample_var_n 
+
     
     # Set up TensorBoard output
     writer = SummaryWriter(log_dir=log_dir)
 
     agent_path_all = {} 
 
-    num_episode = 1000 
+    num_episode = 2000 
     reward_num = 9
 
     if agent_memory_based:
@@ -105,7 +106,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 agent.remember(state, action, reward, next_state, done)
                 
-                if agent.agent_memory_based & (done or truncated):
+                if agent_memory_based & (done or truncated):
                    agent.record_goal_memory(next_state, reward)
 
 
@@ -113,7 +114,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 if TD_switch: 
 
-                    TD_sample = True if i_episode >= 1000 and i_episode % 1000 < 100 else False 
+                    TD_sample = True if i_episode >= 2000 and i_episode % 2000 < 100 else False 
 
                 agent.replay(uniformed_sample= uniform_sample, TD_sample = TD_sample )
 

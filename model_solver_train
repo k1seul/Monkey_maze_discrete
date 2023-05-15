@@ -3,7 +3,7 @@ import time
 import subprocess
 from model_based_map import ModelBasedMap
 
-from agent_goal_memory import Agent
+from agent import Agent
 from torch.utils.tensorboard import SummaryWriter 
 import pickle 
 from save_data import Save_data 
@@ -15,7 +15,7 @@ def agent_train():
     game_name = 'Model_solver'
     log_dir = os.path.join(os.path.join(os.path.expanduser('~')), 'Desktop/tensorboard_Data')
     data_dir = os.path.join(os.path.join(os.path.expanduser('~'), 'Desktop/model_Data/' + game_name + '/'  ))
-    os.makedirs(data_dir)
+
     port = 6983 ## random.randint(6000, 7000)
     subprocess.Popen(f"tensorboard --logdir={log_dir} --port={port} --reload_multifile=true", shell=True)
 
