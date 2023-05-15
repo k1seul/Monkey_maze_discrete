@@ -72,7 +72,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     agent_path_all = {} 
 
-    num_episode = 2000 
+    num_episode = 1000 
     reward_num = 9
 
     if agent_memory_based:
@@ -114,12 +114,12 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 if TD_switch: 
 
-                    TD_sample = True if i_episode >= 2000 and i_episode % 2000 < 100 else False 
+                    TD_sample = True if i_episode >= 1000 and i_episode % 1000 < 100 else False 
 
                 agent.replay(uniformed_sample= uniform_sample, TD_sample = TD_sample )
 
-                if model_based and i_episode > 1000 and i_episode % 1000 < 50 : 
-                    agent.model_simulate(state, 50)
+                if model_based and i_episode > 1000 and i_episode % 1000 < 100 and i_episode % 1000 > 50 : 
+                    agent.model_simulate(state, 10)
 
 
                 state_trajectories.append(state)
@@ -127,6 +127,8 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
             if done:
                 agent.decay_epsilon()
+            elif agent.goal_check_if_none() and i_episode > 1000 :
+                agent.upcay_epsilon() 
 
             
 

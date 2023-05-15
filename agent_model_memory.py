@@ -15,7 +15,7 @@ class Agent():
     """
     def __init__(self, state_size, action_size, hidden_size, learning_rate, 
                  memory_size, batch_size, gamma,
-                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 3):
+                 policy_network= 'Q_network', model_based= False, agent_memory_based= False, agent_memory_size = 2):
         
         self.device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
         print("currently running the calculation on " + str(self.device))
@@ -36,10 +36,10 @@ class Agent():
         ## model of the env model predicts S(t+1), r(t+1) = model(s,a) 
         self.model_based = model_based
         if model_based:
-            self.model_network_input_n = state_size + 1
+            self.model_network_input_n = self.state_size + 1
             self.model_hidden_size = hidden_size
-            self.model_output_size = state_size + 1 
-            self.model_max_simulation_n = 100 
+            self.model_output_size = self.state_size + 1 
+            self.model_max_simulation_n = 5 
             self.model_learning_rate = learning_rate
             self.model_loss = 0 
             self.model_epsilon = 0.1 
@@ -127,6 +127,10 @@ class Agent():
         
         self.guess_goal = np.array(guss_goal)
         self.agent_memory[:2] = self.guess_goal
+        print(self.guess_goal)
+
+    def goal_check_if_none(self): 
+        return np.equal(np.zeros(2), self.agent_memory[:2]).all()
         
         
 
@@ -145,8 +149,6 @@ class Agent():
             self.agent_small_reward_memory += small_reward
             
 
-        self.agent_memory[-1] = self.agent_small_reward_memory
-    
 
         
 
@@ -288,6 +290,8 @@ class Agent():
 
 
     def model_simulate(self, state, simulation_size):
+        if self.goal_check_if_none():
+            return 
 
 
         self.model_experience_memory = deque(maxlen=self.memory_size)
@@ -296,16 +300,25 @@ class Agent():
         if (self.model_loss > self.model_loss_bound) or (self.model_train_n < self.model_simul_start_n):
             return 
         
+        start_state = self.state_memory_wapper(state)
+        
         for simulation_num in range(simulation_size):
+
+            state = start_state 
+
+        
             done = False 
             simul_n = 0
 
             while not(done):
                 simul_n +=1 
-                if simul_n >= self.model_max_simulation_n:
+                if simul_n >= self.model_max_simulation_n or np.array_equal(state[:2], state[-2:]):
                     done = True 
 
-                action = self.model_solver(state)
+                if np.random.rand() <= 0.1:
+                    action = np.random.randint(self.action_size) 
+                else: 
+                    action = self.model_solver.act(state)
 
                 action = np.array([action])
                 
@@ -363,4 +376,9 @@ class Agent():
 
     def decay_epsilon(self):
         self.epsilon = max(self.epsilon_min, self.epsilon_decay_rate  * self.epsilon)
+
+    def upcay_epsilon(self):
+        self.epsilon = min(1.0, self.epsilon/self.epsilon_decay_rate)
+
+
        
