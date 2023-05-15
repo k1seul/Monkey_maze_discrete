@@ -39,7 +39,7 @@ else:
 
 
 for trial_num in range(9):
-    state, info = env.reset(reward_idx = trial_num)
+    state, info = env.reset(reward_idx = 1)
     terminated = False
     truncated = False 
 
