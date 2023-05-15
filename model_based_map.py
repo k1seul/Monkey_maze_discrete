@@ -13,7 +13,7 @@ class ModelBasedMap(gym.Env):
 
     def __init__(self, render_mode = None, memory_state_size = None):
         self.window_size = 800
-        self.size = 15 # 11 x 11 grid world 
+        self.size = 11 # 11 x 11 grid world 
 
         # minimal_state_n is given as (x,y) coordinate, head_direction, front_sight
         self.state_n = 4
