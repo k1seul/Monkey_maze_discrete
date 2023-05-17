@@ -4,6 +4,7 @@ game_ver = 0
 
 
 agent_train(uniform_sample=True, TD_sample=False, game_version=game_ver, TD_switch= False, model_based= False, agent_memory_based=False)
+agent_train(uniform_sample=True, TD_sample=False, game_version=game_ver, TD_switch= False, model_based= False, agent_memory_based=True, pre_train = True)
 agent_train(uniform_sample=True, TD_sample=False, game_version=game_ver, TD_switch= False, model_based= False, agent_memory_based=True)
-agent_train(uniform_sample=True, TD_sample=False, game_version=game_ver, TD_switch= True, model_based= False, agent_memory_based=True)
+agent_train(uniform_sample=True, TD_sample=False, game_version=game_ver, TD_switch= True, model_based= False, agent_memory_based=True, pre_train = True)
 agent_train(uniform_sample=True, TD_sample=False, game_version=game_ver, TD_switch= False, model_based= True, agent_memory_based=True)
