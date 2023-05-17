@@ -31,7 +31,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     log_dir = (log_dir + '/' + game_name + '_' + "Uniformed_sample_" + 
         str(uniform_sample) +'_TD_switch'+ str(TD_switch)  + 
-        '_' + 'model_based_' + str(model_based)) + '_' + str(run_time)
+        '_' + 'model_based_' + str(model_based) + '_' + 'memory_based_' + str(agent_memory_based)) + '_' + str(run_time)
 
     if game_version == 1:
         env = MonkeyQmazeDiscrete()
@@ -72,7 +72,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     agent_path_all = {} 
 
-    num_episode = 1000 
+    num_episode = 2000 
     reward_num = 9
 
     if agent_memory_based:
@@ -114,11 +114,11 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 if TD_switch: 
 
-                    TD_sample = True if i_episode >= 1000 and i_episode % 1000 < 100 else False 
+                    TD_sample = True if i_episode >= 2000 and i_episode % 2000 < 100 else False 
 
                 agent.replay(uniformed_sample= uniform_sample, TD_sample = TD_sample )
 
-                if model_based and i_episode > 1000 and i_episode % 1000 < 100 and i_episode % 1000 > 50 : 
+                if model_based and i_episode > 2000 and i_episode % 2000 < 200 and i_episode % 2000 > 0 : 
                     agent.model_simulate(state, 10)
 
 
@@ -127,7 +127,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
             if done:
                 agent.decay_epsilon()
-            elif agent.goal_check_if_none() and i_episode > 1000 :
+            elif agent.goal_check_if_none() and i_episode > 2000 and model_based :
                 agent.upcay_epsilon() 
 
             
