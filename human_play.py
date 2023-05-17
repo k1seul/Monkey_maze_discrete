@@ -2,6 +2,7 @@ from monkeyqmazediscrete_v2 import MonkeyQmazeDiscreteV2
 from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 from monkeyqmazediscrete import MonkeyQmazeDiscrete
+from monkeyqmazediscrete_v0_explore import MonkeyQmazeDiscreteV0Ex
 from monkeyqmazediscrete_v0_cheat import MonkeyQmazeDiscreteV0Cheat
 from model_based_map import ModelBasedMap
 import pygame 
@@ -13,7 +14,7 @@ import pygame
 terminated = False
 truncated = False 
 game_ver = int(input("type in the game version"))
-if game_ver == 0 or game_ver == 9 or game_ver == 8 :
+if game_ver == 0 or game_ver == 9 or game_ver == 8 or game_ver == 4:
     a = [3,2,0,1,4]
 elif game_ver == 1:
     a = [3,2,1,0,4]
@@ -30,6 +31,8 @@ elif game_ver == 2:
     env = MonkeyQmazeDiscreteV2(render_mode='human')
 elif game_ver == 3: 
     env = MonkeyQmazeDiscreteV3(render_mode='human')
+elif game_ver == 4:
+    env = MonkeyQmazeDiscreteV0Ex(render_mode='human') 
 elif game_ver == 9:
     env = MonkeyQmazeDiscreteV0Cheat(render_mode='human')
 elif game_ver == 8:

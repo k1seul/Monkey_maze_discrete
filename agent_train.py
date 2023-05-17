@@ -16,7 +16,8 @@ from evaluate_fixed_agent import evaluate_fixed_agent
 
 def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100, 
     game_version = 1 , TD_switch = False, model_based=False,
-    agent_memory_based=False):
+    agent_memory_based=False,
+    pre_train = False):
     if TD_sample:
         uniform_sample = False
     game_name = 'Monkey_Qmaze' + str(game_version)
@@ -48,10 +49,10 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     action_size = env.action_n
     simulation = False
 
-    hidden_size = 1024 
+    hidden_size = 1024
     learning_rate = 0.001 
     memory_size = 10000 
-    batch_size = 64
+    batch_size = 128
     gamma = 0.99 
 
     agent = Agent(state_size= state_size,
@@ -62,7 +63,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
                   batch_size= batch_size,
                   gamma= gamma,
                   model_based=model_based,
-                  agent_memory_based=True)
+                  agent_memory_based=agent_memory_based)
     
     agent.sample_var_n = sample_var_n 
 
@@ -72,12 +73,59 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     agent_path_all = {} 
 
-    num_episode = 2000 
+    num_episode = 500 
     reward_num = 9
 
     if agent_memory_based:
         agent.init_memory(agent_memory_size=2) 
         agent.init_goal_memory_dict() 
+        agent.goal_memory2dict() 
+
+    
+
+    from monkeyqmazediscrete_v0_explore import MonkeyQmazeDiscreteV0Ex
+
+
+    if agent_memory_based and pre_train :
+        """
+        pretraining of the memory based agent"""
+        pre_env = MonkeyQmazeDiscreteV0Ex() 
+        state, info = pre_env.reset() 
+
+        for i_episode in range(0, 1000): 
+            state, info = pre_env.reset(reward_idx = 1 ) 
+            done = False 
+            truncated = False 
+            total_length = 1
+            total_reward = 0 
+           
+            while not(done or truncated):
+                action = agent.act(state)
+                next_state, reward, done, truncated, info = pre_env.step(action)
+        
+
+                total_reward += reward 
+                total_length += 1
+
+
+
+                agent.remember(state, action, reward, next_state, done)
+                agent.replay(uniformed_sample= uniform_sample, TD_sample = TD_sample )
+                
+
+                state = next_state
+
+                if done:
+                    agent.decay_epsilon()
+
+            writer.add_scalar("pre train reward", total_reward, i_episode) 
+            print(f"pre train network reward of {total_reward} took episode {total_length}")
+            print(agent.guess_goal)
+
+
+
+
+    agent.epsilon = 1.0 
         
 
     for reward_idx in range(0, reward_num):
@@ -94,6 +142,11 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
             state_trajectories = [] 
             action_trajectories = [] 
             while not(done or truncated):
+                if agent_memory_based and np.array_equal([0,0], agent.guess_goal):
+                   agent.goal_select_from_memory() 
+                   
+                
+               
 
                 action = agent.act(state)
                 next_state, reward, done, truncated, info = env.step(action)
@@ -114,11 +167,11 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
                 if TD_switch: 
 
-                    TD_sample = True if i_episode >= 2000 and i_episode % 2000 < 100 else False 
+                    TD_sample = True if i_episode >= num_episode and i_episode % num_episode < 20 else False 
 
                 agent.replay(uniformed_sample= uniform_sample, TD_sample = TD_sample )
 
-                if model_based and i_episode > 2000 and i_episode % 2000 < 200 and i_episode % 2000 > 0 : 
+                if model_based and i_episode > num_episode and i_episode % num_episode < 20 and i_episode % num_episode > 0 : 
                     agent.model_simulate(state, 10)
 
 
@@ -127,9 +180,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
             if done:
                 agent.decay_epsilon()
-            elif agent.goal_check_if_none() and i_episode > 2000 and model_based :
-                agent.upcay_epsilon() 
-
+            
             
 
             shannon_value = shannon_info(state_trajectories, action_trajectories, env.action_n)

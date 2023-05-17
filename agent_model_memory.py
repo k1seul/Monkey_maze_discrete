@@ -28,6 +28,7 @@ class Agent():
         self.hidden_size = hidden_size
         self.action_size = action_size
         self.learning_rate = learning_rate
+        self.agent_memory_based = agent_memory_based
 
         if agent_memory_based:
             self.state_size += agent_memory_size
@@ -55,7 +56,7 @@ class Agent():
         self.gamma = gamma
         self.experience_memory = deque(maxlen=self.memory_size)
         self.epsilon = 1.0 
-        self.epsilon_min = 0.01 
+        self.epsilon_min = 0.01
         self.epsilon_decay_rate = 0.995
 
         ## initializing policy network of choosing
@@ -96,7 +97,7 @@ class Agent():
 
     def init_goal_memory_dict(self):
         self.goal_memory_dict = {} 
-        max_length = 10 
+        max_length = 20
         self.goal_memory_deque = deque([np.array([0,0])]*max_length, maxlen=max_length)
 
     def record_goal_memory(self, next_state, reward):
@@ -120,14 +121,20 @@ class Agent():
 
 
     def goal_select_from_memory(self):
+        if (0,0) in self.goal_memory_dict and not(self.goal_memory_dict[(0,0)] == 10): 
+            self.goal_memory_dict[(0,0)] = min(self.goal_memory_dict[(0,0)], 5)
+        
         counter_values = np.array(list(self.goal_memory_dict.values())) 
         p_values = counter_values/sum(counter_values)
+        
         random_goal_idx = int(np.random.choice(len(p_values), 1, p=p_values))
         guss_goal = list(self.goal_memory_dict.keys())[random_goal_idx]
         
         self.guess_goal = np.array(guss_goal)
         self.agent_memory[:2] = self.guess_goal
+
         print(self.guess_goal)
+        
 
     def goal_check_if_none(self): 
         return np.equal(np.zeros(2), self.agent_memory[:2]).all()
@@ -159,6 +166,7 @@ class Agent():
             memory_state = np.append(state, self.agent_memory)
         else: 
             return state
+        
 
         return memory_state
              
@@ -378,7 +386,7 @@ class Agent():
         self.epsilon = max(self.epsilon_min, self.epsilon_decay_rate  * self.epsilon)
 
     def upcay_epsilon(self):
-        self.epsilon = min(1.0, self.epsilon/self.epsilon_decay_rate)
+        self.epsilon = min(1.0, 1.005*self.epsilon/self.epsilon_decay_rate)
 
 
        
