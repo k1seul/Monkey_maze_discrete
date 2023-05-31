@@ -92,7 +92,6 @@ class Agent():
 
     def init_memory(self, agent_memory_size):
         self.agent_memory = np.zeros(agent_memory_size)
-        self.small_reward_memory_reset() 
         self.init_goal_memory_dict() 
 
     def init_goal_memory_dict(self):
@@ -195,7 +194,6 @@ class Agent():
     def remember(self, state, action, reward, next_state, done):
         if self.agent_memory_based:
             state = self.state_memory_wapper(state)
-            self.record_small_reward_memory(reward)
             next_state = self.state_memory_wapper(next_state)
         
         self.experience_memory.append((state, action, reward, next_state, done))

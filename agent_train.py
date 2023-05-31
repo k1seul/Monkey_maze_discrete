@@ -2,8 +2,6 @@ import os
 import time 
 import subprocess
 from monkeyqmazediscrete import MonkeyQmazeDiscrete
-from monkeyqmazediscrete_v2 import MonkeyQmazeDiscreteV2
-from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 from monkeyqmazediscrete_v0_cheat import MonkeyQmazeDiscreteV0Cheat 
 from agent_model_memory import Agent
@@ -36,10 +34,6 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     if game_version == 1:
         env = MonkeyQmazeDiscrete()
-    elif game_version == 2:
-        env = MonkeyQmazeDiscreteV2()
-    elif game_version ==3 :
-        env = MonkeyQmazeDiscreteV3()
     elif game_version ==9:
         env = MonkeyQmazeDiscreteV0Cheat()
     else:
@@ -73,7 +67,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     agent_path_all = {} 
 
-    num_episode = 500 
+    num_episode = 1000  
     reward_num = 9
 
     if agent_memory_based:

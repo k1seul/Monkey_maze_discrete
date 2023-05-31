@@ -1,10 +1,8 @@
 from agent import Agent 
 from agent import Agent 
 from torch.utils.tensorboard import SummaryWriter
-from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from agent import Agent
 from torch.utils.tensorboard import SummaryWriter
-from monkeyqmazediscrete_v3 import MonkeyQmazeDiscreteV3
 from monkeyqmazediscrete_v0 import MonkeyQmazeDiscreteV0
 import numpy as np 
 
