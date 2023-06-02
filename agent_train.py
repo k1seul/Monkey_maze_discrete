@@ -43,10 +43,10 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     action_size = env.action_n
     simulation = False
 
-    hidden_size = 1024
+    hidden_size = 512 
     learning_rate = 0.001 
     memory_size = 10000 
-    batch_size = 128
+    batch_size = 256 
     gamma = 0.99 
 
     agent = Agent(state_size= state_size,
@@ -67,7 +67,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
 
     agent_path_all = {} 
 
-    num_episode = 1000  
+    num_episode = 500  
     reward_num = 9
 
     if agent_memory_based:
@@ -199,7 +199,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
             if model_based:
                 writer.add_scalar("model_loss:", agent.model_loss, i_episode)
 
-            Save_data(agent.q_network, i_episode, save_rate = 1000, name= data_dir + '/' + 'Q_network') 
+            Save_data(agent.q_network, i_episode, save_rate = 250 , name= data_dir + '/' + 'Q_network') 
 
             print("Episode: {}, total_reward: {:.2f}, epsilon: {:.2f}, length: {}".format(i_episode, total_reward, agent.epsilon, total_length))
 
