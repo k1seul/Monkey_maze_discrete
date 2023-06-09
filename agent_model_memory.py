@@ -246,7 +246,7 @@ class Agent():
         if len(self.experience_memory) < self.batch_size:
             return 
         
-        if uniformed_sample:
+        if not(TD_sample):
             minibatch = random.sample(self.experience_memory, self.batch_size)
         elif TD_sample:
             middle_batch_size = 4 * self.batch_size
@@ -257,10 +257,10 @@ class Agent():
             TD_PER = self.make_TD_PER()
             minibatch_idx = np.random.choice(list(range(len(self.experience_sub_memory))), self.batch_size, p=TD_PER)
             minibatch = [self.experience_memory[i] for i in minibatch_idx]
-        else:
-            gaussain_p = self.make_gaussian_sample(len(self.experience_memory), sample_var_n=self.sample_var_n)
-            minibatch_idx = np.random.choice(list(range(len(self.experience_memory))), self.batch_size, p=gaussain_p)
-            minibatch = [self.experience_memory[i] for i in minibatch_idx]
+        ##else:
+        ##    gaussain_p = self.make_gaussian_sample(len(self.experience_memory), sample_var_n=self.sample_var_n)
+        ##    minibatch_idx = np.random.choice(list(range(len(self.experience_memory))), self.batch_size, p=gaussain_p)
+        ##    minibatch = [self.experience_memory[i] for i in minibatch_idx]
         
         states = torch.FloatTensor(np.array([t[0] for t in minibatch])).to(self.device)
         actions = torch.LongTensor([t[1] for t in minibatch]).to(self.device)
