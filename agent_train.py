@@ -43,7 +43,7 @@ def agent_train(uniform_sample=True,TD_sample = False, sample_var_n = 100,
     action_size = env.action_n
     simulation = False
 
-    hidden_size = 512 
+    hidden_size = 1024
     learning_rate = 0.001 
     memory_size = 10000 
     batch_size = 256 
